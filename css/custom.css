@@ -5,6 +5,14 @@
   width: 100%;
 }
 
-.editor-textfield {
+.toolbar-header{
+  position: relative;
+  float: left;
+  min-height: 60px;
+}
 
+.editor-textfield {
+  positon: relative;
+  width: 100vw;
+  height: 80vh;
 }
