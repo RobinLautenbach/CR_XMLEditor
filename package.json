@@ -1,0 +1,9 @@
+{
+  "name": "XML-Editor",
+  "version": "0.1.0",
+  "main": "main.js",
+  "devDependencies": {
+    "electron": "^1.4.4",
+    "prebuilt": "^0.2.4"
+  }
+}
