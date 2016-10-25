@@ -1,4 +1,6 @@
 const {app, BrowserWindow, ipcMain, globalShortcut, dialog} = require('electron')
+let xml2js = require('xml2js')
+let  fs = require('fs')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -50,6 +52,14 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 ipcMain.on('open-file', (event, arg) => {
-  dialog.showOpenDialog({title: 'Datei öffnen', properties: ['openFile'], filters: [{name: 'XML', extensions: ['xml', 'XML']}]})
-  event.returnValue = 'pong'
+  let file = dialog.showOpenDialog({title: 'Datei öffnen', properties: ['openFile'], filters: [{name: 'XML', extensions: ['xml', 'XML']}]})
+  let parser = new xml2js.Parser()
+  // Datei einlesen
+  fs.readFile(file[0], function (err, data) {
+    // XML-String in JSON umwandeln
+    parser.parseString(data, function (err, result) {
+        // result beinhaltet das JSON-Objekt
+          event.returnValue = result
+    })
+  })
 })
