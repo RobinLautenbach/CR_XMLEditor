@@ -55,11 +55,27 @@ ipcMain.on('open-file', (event, arg) => {
   let file = dialog.showOpenDialog({title: 'Datei öffnen', properties: ['openFile'], filters: [{name: 'XML', extensions: ['xml', 'XML']}]})
   let parser = new xml2js.Parser()
   // Datei einlesen
-  fs.readFile(file[0], function (err, data) {
-    // XML-String in JSON umwandeln
-    parser.parseString(data, function (err, result) {
-        // result beinhaltet das JSON-Objekt
-          event.returnValue = result
+  try {
+    fs.readFile(file[0], function (err, data) {
+      // XML-String in JSON umwandeln
+      parser.parseString(data, function (err, result) {
+          if (err) {
+               event.returnValue = "Fehler beim Parsen"
+          }else {
+            // result beinhaltet das JSON-Objekt
+              event.returnValue = result
+          }
+      })
     })
-  })
+  } catch (e) {
+    event.returnValue = "Fehler beim Lesen der Datei"
+  }
 })
+
+ipcMain.on('save-file', (event, arg) => {
+  event.returnValue = saveFile()
+})
+
+function saveFile(){
+  return "Datei gespeichert"
+}
