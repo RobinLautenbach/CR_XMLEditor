@@ -5,6 +5,7 @@ let filePath = ""
 let dialog = remote.dialog
 let xml2js = require('xml2js')
 let fs = require('fs')
+let $ = require('jQuery');
 
 
 let fileOpenButton = document.getElementById('fileOpenButton')
