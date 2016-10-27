@@ -30,11 +30,11 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow()
-  const saveShortcut = globalShortcut.register('CommanOrControl+S', () => {})
-  const openShortcut = globalShortcut.register('CommanOrControl+O', () => {
+  const saveShortcut = globalShortcut.register('CommandOrControl+S', () => {})
+  const openShortcut = globalShortcut.register('CommandOrControl+O', () => {
     openFile()
   })
-  win.webContents.send('info-channel', {msg: 'Test 123'})
+  win.webContents.contents.send('info-channel', {msg: 'Test 123'})
   if(!saveShortcut) win.webContents.send('info-channel',{msg: 'Registrierung des Save Shortcuts fehlgeschlagen'})
   if(!openShortcut) win.webContents.send('info-channel',{msg: 'Registrierung des Open Shortcuts fehlgeschlagen'})
 
