@@ -5,6 +5,7 @@
     <title>Simple XML-Editor</title>
     <link rel="stylesheet" href="photon/css/photon.css">
     <link rel="stylesheet" href="css/codemirror.css">
+    <link rel="stylesheet" href="css/show-hint.css">
     <link rel="stylesheet" href="css/custom.css">
   </head>
   <body>
@@ -37,10 +38,23 @@
     </div>
     <script src="js/codemirror.js"></script>
     <script src="js/xml.js"></script>
+    <script src="js/show-hint.js"></script>
+    <script src="js/xml-hint.js"></script>
+    <script src="js/hint-functions.js"></script>
     <script>
+
+
       var editor = CodeMirror.fromTextArea(document.getElementById("textarea1"), {
         lineNumbers: true,
-        mode: "xml"
+        mode: "xml",
+        extraKeys: {
+          "'<'": completeAfter,
+          "'/'": completeIfAfterLt,
+          "' '": completeIfInTag,
+          "'='": completeIfInTag,
+          "Ctrl-Space": "autocomplete"
+        },
+        hintOptions: {schemaInfo: tags}
       });
     </script>
     <script src="js/index.js"></script>
