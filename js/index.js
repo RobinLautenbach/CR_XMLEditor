@@ -19,3 +19,7 @@ ipcRenderer.on('open-file', (event, arg) => {
 ipcRenderer.on('save-file', (event, arg) => {
   console.log(event.returnValue)
 })
+
+ipcRenderer.on('info-channel', (event, data) => {
+  console.log(data.msg);
+})

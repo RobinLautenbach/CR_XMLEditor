@@ -5,7 +5,7 @@ let  fs = require('fs')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
-console.log(require.resolve('electron'))
+
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({width: 1024, height: 768})
@@ -30,6 +30,18 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow()
+  const saveShortcut = globalShortcut.register('CommanOrControl+S', () => {})
+  const openShortcut = globalShortcut.register('CommanOrControl+O', () => {
+    openFile()
+  })
+  win.webContents.send('info-channel', {msg: 'Test 123'})
+  if(!saveShortcut) win.webContents.send('info-channel',{msg: 'Registrierung des Save Shortcuts fehlgeschlagen'})
+  if(!openShortcut) win.webContents.send('info-channel',{msg: 'Registrierung des Open Shortcuts fehlgeschlagen'})
+
+})
+
+app.on('will-quit', () => {
+    globalShortcut.unregisterAll()
 })
 
 // Quit when all windows are closed.
@@ -78,4 +90,25 @@ ipcMain.on('save-file', (event, arg) => {
 
 function saveFile(){
   return "Datei gespeichert"
+}
+
+function openFile(){
+  let file = dialog.showOpenDialog({title: 'Datei öffnen', properties: ['openFile'], filters: [{name: 'XML', extensions: ['xml', 'XML']}]})
+  let parser = new xml2js.Parser()
+  // Datei einlesen
+  try {
+    fs.readFile(file[0], function (err, data) {
+      // XML-String in JSON umwandeln
+      parser.parseString(data, function (err, result) {
+          if (err) {
+               return "Fehler beim Parsen"
+          }else {
+            // result beinhaltet das JSON-Objekt
+              return result
+          }
+      })
+    })
+  } catch (e) {
+    return "Fehler beim Lesen der Datei"
+  }
 }
