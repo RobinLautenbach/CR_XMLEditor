@@ -2,6 +2,7 @@
 
 const {ipcRenderer, remote} = require('electron')
 let filePath = ""
+let fileName = ""
 let dialog = remote.dialog
 let xml2js = require('xml2js')
 let fs = require('fs')
@@ -53,6 +54,8 @@ function openFile(){
         }catch(e){
           console.log("Keine Datei ausgewählt")
         }
+        fileName = filePath.replace(/^.*(\\|\/|\:)/, '')
+        $('.title').append(' (' + fileName + ')')
     })
 }
 
