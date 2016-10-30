@@ -30,15 +30,23 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow()
+  regShortcuts()
+})
+
+function regShortcuts(){
   const saveShortcut = globalShortcut.register('CommandOrControl+S', () => {
     win.webContents.send('shortcut-registration-save', 'save')
   })
   const openShortcut = globalShortcut.register('CommandOrControl+O', () => {
     win.webContents.send('shortcut-registration-open', 'open')
   })
+  const saveAsShortcut = globalShortcut.register('CommandOrControl+Shift+S', () => {
+    win.webContents.send('shortcut-registration-saveAs', 'saveAs')
+  })
   if(!saveShortcut) win.webContents.send('info-channel',{msg: 'Registrierung des Save Shortcuts fehlgeschlagen'})
   if(!openShortcut) win.webContents.send('info-channel',{msg: 'Registrierung des Open Shortcuts fehlgeschlagen'})
-})
+  if(!saveAsShortcut) win.webContents.send('info-channel',{msg: 'Registrierung des SaveAs Shortcuts fehlgeschlagen'})
+}
 
 app.on('will-quit', () => {
     globalShortcut.unregisterAll()

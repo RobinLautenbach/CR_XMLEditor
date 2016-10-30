@@ -25,8 +25,8 @@
       </header>
       <main>
         <form>
-          <div class="form-group">
-            <textarea id="textarea1" class="form-control editor-textfield" rows="3"></textarea>
+          <div class="form-group" id="editorDiv">
+            <!--<textarea id="textarea1" class="form-control editor-textfield" rows="3"></textarea>-->
           </div>
         </form>
       </main>
@@ -41,22 +41,6 @@
     <script src="js/show-hint.js"></script>
     <script src="js/xml-hint.js"></script>
     <script src="js/hint-functions.js"></script>
-    <script>
-
-
-      var editor = CodeMirror.fromTextArea(document.getElementById("textarea1"), {
-        lineNumbers: true,
-        mode: "xml",
-        extraKeys: {
-          "'<'": completeAfter,
-          "'/'": completeIfAfterLt,
-          "' '": completeIfInTag,
-          "'='": completeIfInTag,
-          "Ctrl-Space": "autocomplete"
-        },
-        hintOptions: {schemaInfo: tags}
-      });
-    </script>
     <script src="js/index.js"></script>
   </body>
 

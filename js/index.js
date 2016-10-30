@@ -11,6 +11,10 @@ let $ = require('jQuery');
 
 let fileOpenButton = document.getElementById('fileOpenButton')
 let fileSaveButton = document.getElementById('fileSaveButton')
+let fileSaveAsButton = document.getElementById('fileSaveAsButton')
+let c = null
+let editor = null
+let starSet = false
 
 fileOpenButton.addEventListener('click', () => {
   openFile()
@@ -20,12 +24,20 @@ fileSaveButton.addEventListener('click', () => {
   saveFile()
 })
 
+fileSaveAsButton.addEventListener('click', () => {
+  saveFileAs()
+})
+
 ipcRenderer.on('shortcut-registration-open', (event, arg) => {
     openFile()
 })
 
 ipcRenderer.on('shortcut-registration-save', (event, arg) => {
     saveFile()
+})
+
+ipcRenderer.on('shortcut-registration-saveAs', (event, arg) => {
+    saveFileAs()
 })
 
 ipcRenderer.on('info-channel', (event, data) => {
@@ -45,6 +57,25 @@ function saveFile(){
   }
 }
 
+function saveFileAs(){
+  console.log('Speichern unter')
+  let content = editor.getValue()
+  dialog.showSaveDialog({title: 'Speichern unter', filters: [{name: 'XML', extensions: ['xml']}]}, (fileName) => {
+         if (fileName === undefined){
+              console.log("Kein Dateiname angegeben");
+              return;
+         }
+         // fileName is a string that contains the path and filename created in the save file dialog.
+         fs.writeFile(fileName, content, function (err) {
+             if(err){
+                 console.log("Fehler beim Schreiben der Datei: "+ err.message)
+             }
+
+             console.log("Die Datei wurde erfolgreich gespeichert")
+         })
+  })
+}
+
 function openFile(){
     dialog.showOpenDialog({title: 'Datei öffnen', properties: ['openFile'], filters: [{name: 'XML', extensions: ['xml', 'XML']}]}, (file) => {
         //Datei einlesen
@@ -54,6 +85,7 @@ function openFile(){
         }catch(e){
           console.log("Keine Datei ausgewählt")
         }
+        $('.title').text('XML-Editor')
         fileName = filePath.replace(/^.*(\\|\/|\:)/, '')
         $('.title').append(' (' + fileName + ')')
     })
@@ -65,11 +97,52 @@ function readFile(path){
       console.log("Fehler beim Lesen der Datei")
     }else{
       console.log(data)
-      editor.setValue(data)
+      initializeEditor(data)
     }
     // XML-String in JSON umwandeln
     //parse2JSON(data)
   })
+}
+
+function initializeEditor(data){
+    if(editor != null){
+      editor = null
+      c = null
+      let ediv = document.getElementById('editorDiv')
+      while(ediv.firstChild){
+        ediv.removeChild(ediv.firstChild)
+      }
+    }
+    let tArea = document.createElement('Textarea')
+    tArea.id = 'textarea1'
+    tArea.classList.add('form-control')
+    tArea.classList.add('editor-textfield')
+    document.getElementById('editorDiv').appendChild(tArea)
+    editor = CodeMirror.fromTextArea(document.getElementById("textarea1"), {
+    lineNumbers: true,
+    mode: "xml",
+    extraKeys: {
+      "'<'": completeAfter,
+      "'/'": completeIfAfterLt,
+      "' '": completeIfInTag,
+      "'='": completeIfInTag,
+      "Ctrl-Space": "autocomplete"
+    },
+    hintOptions: {schemaInfo: tags}
+  })
+
+    editor.setValue(data)
+    c = editor.changeGeneration()
+    starSet = false
+    editor.on('change', (instance, change) => {
+      if(!editor.isClean(c) && !starSet){
+        $('.title').append('*')
+        starSet = true
+      }else if(editor.isClean(c)){
+        $('.title').text('XML-Editor (' + fileName + ')')
+        starSet = false
+      }
+    })
 }
 
 function parse2JSON(file){
