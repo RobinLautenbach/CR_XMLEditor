@@ -8,5 +8,8 @@
   },
   "scripts": {
     "start": "electron main.js"
+  },
+  "dependencies": {
+    "electron-localshortcut": "^1.0.0"
   }
 }

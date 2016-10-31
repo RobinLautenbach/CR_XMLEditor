@@ -1,8 +1,6 @@
 'use strict';
 
 const {ipcRenderer, remote} = require('electron')
-let filePath = ""
-let fileName = ""
 let dialog = remote.dialog
 let xml2js = require('xml2js')
 let fs = require('fs')
@@ -15,17 +13,22 @@ let fileSaveAsButton = document.getElementById('fileSaveAsButton')
 let c = null
 let editor = null
 let starSet = false
+let filePath = ""
+let fileName = ""
+
+fileSaveButton.style.display = 'none'
+fileSaveAsButton.style.display = 'none'
 
 fileOpenButton.addEventListener('click', () => {
   openFile()
 })
 
 fileSaveButton.addEventListener('click', () => {
-  saveFile()
+   if(editor && c && !editor.isClean(c)) saveFile()
 })
 
 fileSaveAsButton.addEventListener('click', () => {
-  saveFileAs()
+   if(editor && c && !editor.isClean(c)) saveFileAs()
 })
 
 ipcRenderer.on('shortcut-registration-open', (event, arg) => {
@@ -33,11 +36,11 @@ ipcRenderer.on('shortcut-registration-open', (event, arg) => {
 })
 
 ipcRenderer.on('shortcut-registration-save', (event, arg) => {
-    saveFile()
+    if(editor && c && !editor.isClean(c)) saveFile()
 })
 
 ipcRenderer.on('shortcut-registration-saveAs', (event, arg) => {
-    saveFileAs()
+    if(editor && c && !editor.isClean(c)) saveFileAs()
 })
 
 ipcRenderer.on('info-channel', (event, data) => {
@@ -52,6 +55,12 @@ function saveFile(){
     fs.writeFile(filePath, content, function(err){
       if(err){
         console.log("Fehler beim Speichern der Datei!")
+      }else{
+        console.log("Speichern erfolgreich")
+        $('.title').text('XML-Editor (' + fileName + ')')
+        c = editor.changeGeneration()
+        starSet = false
+        fileSaveButton.style.display = 'none'
       }
     })
   }
@@ -68,10 +77,11 @@ function saveFileAs(){
          // fileName is a string that contains the path and filename created in the save file dialog.
          fs.writeFile(fileName, content, function (err) {
              if(err){
-                 console.log("Fehler beim Schreiben der Datei: "+ err.message)
+               console.log("Fehler beim Schreiben der Datei: "+ err.message)
              }
-
-             console.log("Die Datei wurde erfolgreich gespeichert")
+             else{
+               console.log("Die Datei wurde erfolgreich gespeichert")
+             }
          })
   })
 }
@@ -119,28 +129,33 @@ function initializeEditor(data){
     tArea.classList.add('editor-textfield')
     document.getElementById('editorDiv').appendChild(tArea)
     editor = CodeMirror.fromTextArea(document.getElementById("textarea1"), {
-    lineNumbers: true,
-    mode: "xml",
-    extraKeys: {
-      "'<'": completeAfter,
-      "'/'": completeIfAfterLt,
-      "' '": completeIfInTag,
-      "'='": completeIfInTag,
-      "Ctrl-Space": "autocomplete"
-    },
-    hintOptions: {schemaInfo: tags}
-  })
+      lineNumbers: true,
+      mode: "xml",
+      extraKeys: {
+        "'<'": completeAfter,
+        "'/'": completeIfAfterLt,
+        "' '": completeIfInTag,
+        "'='": completeIfInTag,
+        "Ctrl-Space": "autocomplete"
+      },
+      hintOptions: {schemaInfo: tags}
+    })
 
     editor.setValue(data)
     c = editor.changeGeneration()
     starSet = false
+    fileSaveAsButton.style.display = 'inline-block'
+
     editor.on('change', (instance, change) => {
-      if(!editor.isClean(c) && !starSet){
+      console.log(instance.isClean(c))
+      if(!instance.isClean(c) && !starSet){
         $('.title').append('*')
         starSet = true
-      }else if(editor.isClean(c)){
+        fileSaveButton.style.display = 'inline-block'
+      }else if(instance.isClean(c)){
         $('.title').text('XML-Editor (' + fileName + ')')
         starSet = false
+        fileSaveButton.style.display = 'none'
       }
     })
 }

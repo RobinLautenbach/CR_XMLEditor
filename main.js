@@ -1,4 +1,5 @@
-const {app, BrowserWindow, globalShortcut} = require('electron')
+const {app, BrowserWindow} = require('electron')
+const localShortcut = require('electron-localshortcut')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -34,13 +35,13 @@ app.on('ready', () => {
 })
 
 function regShortcuts(){
-  const saveShortcut = globalShortcut.register('CommandOrControl+S', () => {
+  const saveShortcut = localShortcut.register(win, 'CommandOrControl+S', () => {
     win.webContents.send('shortcut-registration-save', 'save')
   })
-  const openShortcut = globalShortcut.register('CommandOrControl+O', () => {
+  const openShortcut = localShortcut.register(win, 'CommandOrControl+O', () => {
     win.webContents.send('shortcut-registration-open', 'open')
   })
-  const saveAsShortcut = globalShortcut.register('CommandOrControl+Shift+S', () => {
+  const saveAsShortcut = localShortcut.register(win, 'CommandOrControl+Shift+S', () => {
     win.webContents.send('shortcut-registration-saveAs', 'saveAs')
   })
   if(!saveShortcut) win.webContents.send('info-channel',{msg: 'Registrierung des Save Shortcuts fehlgeschlagen'})
